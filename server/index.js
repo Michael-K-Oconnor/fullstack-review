@@ -20,7 +20,8 @@ app.post('/repos', function (req, res) {
       body = JSON.parse(body)
       let repos = []
       body.forEach(repo => {
-        repos.push({name:repo.name, starCount: repo.stargazers_count})
+        repos.push({user:user, name:repo.name, 
+          starCount: repo.stargazers_count, url: user+ '/' + repo.name})
       })
       dbConnection.save(repos, (err, result) => {
         if (err) {
@@ -41,17 +42,19 @@ app.post('/repos', function (req, res) {
 app.get('/repos', function (req, res) {
   // TODO - your code here!
   // This route should send back the top 25 repos
-  dbConnection.Repo.find({}, (err, query) => {
+  dbConnection.Repo.find()
+  .sort({starCount: -1})
+  .limit(5)
+  .exec((err, query) => {
     if (err) {
       console.log('Error getting data from DB: ', err)
     } else {
       let result = [];
       query.forEach(repo => {
-        result.push({name:repo.name,starCount:repo.starCount})
+        result.push({name:repo.name,starCount:repo.starCount, url:repo.url})
       })
-      console.log('DB data: ', result)
-      res.sendStatus(200)
-      res.end()
+      res.status(200)
+      res.json(result)
     }
   })
 });

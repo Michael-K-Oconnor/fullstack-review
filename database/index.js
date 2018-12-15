@@ -10,8 +10,14 @@ db.once('open', function() {
   
   
   let repoSchema = mongoose.Schema({
+    user: String,
     name: String,
-    starCount: Number
+    starCount: Number,
+    url: {
+      type: String,
+      index: true,
+      unique: true
+    }
   });
   
   let Repo = mongoose.model('Repo', repoSchema);
@@ -19,8 +25,7 @@ db.once('open', function() {
 
 let save = (repos, cb) => {
   repos.forEach(repo => {
-    let newEntry = new Repo({name:repo.name, starCount:repo.starCount})
-    newEntry.save((err, res) => {
+    Repo.findOneAndUpdate({url:repo.url}, repo, {upsert:true}, (err, res) => {
       if (err) {
         cb(err)
       }
