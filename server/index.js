@@ -10,14 +10,14 @@ app.use(express.static(__dirname + '/../client/dist'));
 
 app.post('/repos', function (req, res) {
   let user = req.body.username;
-  
   getReposByUsername(user, (err, result, body) => {
     if (err) {
       console.log('Error in Gitbub API call')
       res.sendStatus(500)
       res.end()
-    } else {
+    } else if (JSON.parse(body).message !== 'Not Found') {
       body = JSON.parse(body)
+      console.log('BODY: ', body)
       let repos = []
       body.forEach(repo => {
         repos.push({user:user, name:repo.name, 
@@ -30,18 +30,21 @@ app.post('/repos', function (req, res) {
           res.end()
         } else {
           console.log('success writing to db')
-          res.sendStatus(200)
-          res.end()
+          getRepos(req,res)
         }
       })
+    } else {
+      getRepos(req,res)
     }
   })
 })
 
 
 app.get('/repos', function (req, res) {
-  // TODO - your code here!
-  // This route should send back the top 25 repos
+  getRepos(req,res)
+});
+
+const getRepos = (req, res) => {
   dbConnection.Repo.find()
   .sort({starCount: -1})
   .limit(5)
@@ -57,7 +60,12 @@ app.get('/repos', function (req, res) {
       res.json(result)
     }
   })
-});
+}
+
+
+
+
+
 
 let port = 1128;
 
