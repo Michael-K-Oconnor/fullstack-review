@@ -1,19 +1,14 @@
 const request = require('request');
 const config = require('../config.js');
+const axios = require('axios');
 
-let getReposByUsername = (user, cb) => {
-  let options = {
+let getReposByUsername = (user) => {
+  return axios({
+    method: 'GET',
     url: 'https://api.github.com/users/' + user + '/repos',
     headers: {
       'User-Agent': 'michael-k-oconnor',
       'Authorization': `token ${config.TOKEN}`
-    }
-  };
-  request(options, (err, result, body) => {
-    if (err) {
-      cb(err)
-    } else {
-      cb(null, result, body)
     }
   })
 }

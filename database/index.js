@@ -23,15 +23,11 @@ db.once('open', function() {
   let Repo = mongoose.model('Repo', repoSchema);
   
 
-let save = (repos, cb) => {
-  repos.forEach(repo => {
-    Repo.findOneAndUpdate({url:repo.url}, repo, {upsert:true}, (err, res) => {
-      if (err) {
-        cb(err)
-      }
-    })
+let save = (repos) => {
+  let savePromises = repos.map(repo => {
+    return Repo.findOneAndUpdate({url:repo.url}, repo, {upsert:true})
   })
-  cb(null, 'SUCCESS WRITING TO DB')
+  return Promise.all(savePromises)
 }
 
 module.exports.save = save;
